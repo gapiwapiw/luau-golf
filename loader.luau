@@ -52,6 +52,12 @@ local function read_byte()
     return b
 end
 
+local function read_index()
+    local low = read_nibble()
+    local high = read_nibble()
+    return bit32.bor(low, bit32.lshift(high, 4))
+end
+
 -- Execution Stack & Registers
 local stack = {}
 local locals = {}
@@ -101,8 +107,8 @@ while cursor < len or nibble_buffer ~= nil do
     elseif op == 0x4 then -- SET_FIELD
         local idx = read_byte()
         local field_name = constants[idx]
-        local parent = pop_stack()
-        local val = pop_stack()
+        local val = pop_stack()    -- Value popped first
+        local parent = pop_stack() -- Parent popped second
         if parent ~= nil then
             parent[field_name] = val
         end
@@ -144,11 +150,11 @@ while cursor < len or nibble_buffer ~= nil do
         end
 
     elseif op == 0xA then -- POP_LOCAL
-        local slot = read_byte() -- Reads 8-bit slot byte
+        local slot = read_index()
         locals[slot] = pop_stack()
 
     elseif op == 0xB then -- PUSH_LOCAL
-        local slot = read_byte() -- Reads 8-bit slot byte
+        local slot = read_index()
         table.insert(stack, locals[slot])
     end
 end
