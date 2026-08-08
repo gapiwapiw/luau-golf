@@ -1,6 +1,10 @@
 -- luau-golf Runtime VM Interpreter
 local payload = ...
 
+if not payload then
+    error("No bytecode payload passed to loader!", 2)
+end
+
 local buf = buffer.fromstring(payload)
 local len = buffer.len(buf)
 local cursor = 0
