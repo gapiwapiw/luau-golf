@@ -2,7 +2,7 @@
 local payload = ...
 
 if not payload then
-    error("No bytecode payload passed to loader!", 2)
+    return
 end
 
 local buf = buffer.fromstring(payload)
@@ -98,12 +98,14 @@ while cursor < len or nibble_buffer ~= nil do
         end
         local func = table.remove(stack)
         
-        local result = func(unpack(args))
-        if result ~= nil then
-            table.insert(stack, result)
+        if func then
+            local result = func(unpack(args))
+            if result ~= nil then
+                table.insert(stack, result)
+            end
         end
 
-    elseif op == 0x7 then -- INVOKE_METHOD (e.g., obj:Method(args))
+    elseif op == 0x7 then -- INVOKE_METHOD
         local method_idx = read_byte()
         local arg_count = read_nibble()
         local method_name = constants[method_idx]
@@ -114,12 +116,12 @@ while cursor < len or nibble_buffer ~= nil do
         end
 
         local obj = table.remove(stack)
-        local method = obj[method_name]
-
-        -- Call method passing `obj` as `self`
-        local result = method(obj, unpack(args))
-        if result ~= nil then
-            table.insert(stack, result)
+        if obj and obj[method_name] then
+            local method = obj[method_name]
+            local result = method(obj, unpack(args))
+            if result ~= nil then
+                table.insert(stack, result)
+            end
         end
 
     elseif op == 0xA then -- POP_LOCAL
@@ -131,4 +133,3 @@ while cursor < len or nibble_buffer ~= nil do
         table.insert(stack, locals[slot])
     end
 end
-e
