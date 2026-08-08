@@ -99,6 +99,25 @@ while cursor < len or nibble_buffer ~= nil do
             table.insert(stack, result)
         end
 
+    elseif op == 0x7 then -- INVOKE_METHOD (e.g., obj:Method(args))
+        local method_idx = read_byte()
+        local arg_count = read_nibble()
+        local method_name = constants[method_idx]
+
+        local args = {}
+        for i = arg_count, 1, -1 do
+            args[i] = table.remove(stack)
+        end
+
+        local obj = table.remove(stack)
+        local method = obj[method_name]
+
+        -- Call method passing `obj` as `self`
+        local result = method(obj, unpack(args))
+        if result ~= nil then
+            table.insert(stack, result)
+        end
+
     elseif op == 0xA then -- POP_LOCAL
         local slot = read_nibble()
         locals[slot] = table.remove(stack)
