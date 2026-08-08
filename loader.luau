@@ -60,7 +60,6 @@ local env = setmetatable({}, {
     __index = getfenv()
 })
 
--- Helper to safely pop values off stack without underflow errors
 local function pop_stack()
     if #stack == 0 then
         return nil
@@ -123,7 +122,7 @@ while cursor < len or nibble_buffer ~= nil do
             end
         end
 
-    elseif op == 0x7 then -- INVOKE_METHOD (e.g. obj:Method(args))
+    elseif op == 0x7 then -- INVOKE_METHOD
         local method_idx = read_byte()
         local arg_count = read_nibble()
         local method_name = constants[method_idx]
@@ -145,11 +144,11 @@ while cursor < len or nibble_buffer ~= nil do
         end
 
     elseif op == 0xA then -- POP_LOCAL
-        local slot = read_nibble()
+        local slot = read_byte() -- Reads 8-bit slot byte
         locals[slot] = pop_stack()
 
     elseif op == 0xB then -- PUSH_LOCAL
-        local slot = read_nibble()
+        local slot = read_byte() -- Reads 8-bit slot byte
         table.insert(stack, locals[slot])
     end
 end
