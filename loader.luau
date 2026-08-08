@@ -86,8 +86,8 @@ while cursor < len or nibble_buffer ~= nil do
     elseif op == 0x4 then -- SET_FIELD
         local idx = read_byte()
         local field_name = constants[idx]
-        local val = table.remove(stack)
         local parent = table.remove(stack)
+        local val = table.remove(stack)
         parent[field_name] = val
 
     elseif op == 0x6 then -- CALL
@@ -131,3 +131,4 @@ while cursor < len or nibble_buffer ~= nil do
         table.insert(stack, locals[slot])
     end
 end
+a
