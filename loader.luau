@@ -99,9 +99,9 @@ while cursor < len or nibble_buffer ~= nil do
         local func = table.remove(stack)
         
         if func then
-            local result = func(unpack(args))
-            if result ~= nil then
-                table.insert(stack, result)
+            local results = { func(unpack(args)) }
+            for i = 1, #results do
+                table.insert(stack, results[i])
             end
         end
 
@@ -118,9 +118,9 @@ while cursor < len or nibble_buffer ~= nil do
         local obj = table.remove(stack)
         if obj and obj[method_name] then
             local method = obj[method_name]
-            local result = method(obj, unpack(args))
-            if result ~= nil then
-                table.insert(stack, result)
+            local results = { method(obj, unpack(args)) }
+            for i = 1, #results do
+                table.insert(stack, results[i])
             end
         end
 
