@@ -131,4 +131,4 @@ while cursor < len or nibble_buffer ~= nil do
         table.insert(stack, locals[slot])
     end
 end
-a
+e
